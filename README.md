@@ -8,6 +8,7 @@ DocILE is a large-scale research benchmark for cross-evaluation of machine learn
 
 ### Folder Structure
 
+```
 ├── experiments             # contains checkpoint when training
 ├── predictions             # contains predictions when inference
 ├── run_inference.sh
@@ -16,6 +17,7 @@ DocILE is a large-scale research benchmark for cross-evaluation of machine learn
 ├── inference.py
 ├── config.py               # make config here
 └── utils                   # source code to create pseudo data or visualize data
+```
 
 ### Dependencies
 

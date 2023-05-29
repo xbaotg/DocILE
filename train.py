@@ -1019,7 +1019,7 @@ if __name__ == "__main__":
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=compute_metrics,
-        use_awp=False
+        use_awp=CFG_FILE.USE_FGM
     )
 
     # total number of training steps

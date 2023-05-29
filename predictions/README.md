@@ -1,1 +1,1 @@
-Contain the result of the inference
+Contains the result of the inference

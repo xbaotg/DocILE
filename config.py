@@ -3,20 +3,32 @@ from lion_pytorch import Lion
 from transformers import get_linear_schedule_with_warmup
 
 
-def get_model_paths():
-    """
-    Return the model paths.
+#####################
+# INFERENCE CONFIG ##
+#####################
 
-    Returns:
-        model_paths: model paths
-    """
+# threshold in % to combine two bbox have same fieldtype into one
+THRESHOLD_POST_PROCESSING = 0.145
 
-    return [
-        "/docile/baselines/NER/auto_find_best_model_res/model",
-        "/docile/baselines/NER/auto_find_best_model_res/backup_ours/6_04_ours",
-        "/mlcv/WorkingSpace/Personals/baotg/DocILE/trained_model/roberta_base_fgm",
-    ]
+# whether to use post processing, it only works with KILE task
+USE_POST_PROCESSING = True
 
+# whether to evaluate the model, False when you want to inference to create pseudo data, without having ground truth
+NEED_EVAULATE = True 
+
+# models to ensemble, you can add more models here
+MODEL_PATHS = [
+    "/docile/baselines/NER/auto_find_best_model_res/model",
+    "/docile/baselines/NER/auto_find_best_model_res/backup_ours/6_04_ours",
+    "/mlcv/WorkingSpace/Personals/baotg/DocILE/trained_model/roberta_base_fgm",
+]
+
+##################
+## TRAIN CONFIG ##
+##################
+
+# whether to use fast gradient method when training
+USE_FGM = False 
 
 def get_optimizer(model, lr=1e-5, weight_decay=1e-2, warmup_steps=0, training_step=0):
     """
@@ -57,7 +69,7 @@ def ensemble_output(outputs):
     """
 
     predictions = [torch.where(torch.sigmoid(output.logits) > 0.5, 1, 0) for output in outputs]
-    predictions = torch.stack(predictions, dim=-2)
+    predictions = torch.stack(predictions, dim=-1)
     predictions = torch.where(torch.sum(predictions, -1) >= 1, 1, 0)
 
     scores = torch.mean(

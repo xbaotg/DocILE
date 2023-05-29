@@ -467,6 +467,10 @@ if __name__ == "__main__":
             bboxes = np.array([x.bbox.to_tuple() for x in sorted_fields])
             groups = [x.line_item_id for x in sorted_fields]
 
+            print(text_tokens)
+            print(bboxes)
+            input()
+
             def get_output(text_tokens, config, model, tokenizer):
                 tokenized_inputs = tokenizer(
                     text_tokens,
@@ -481,6 +485,9 @@ if __name__ == "__main__":
                     return_tensors="pt",
                     stride=config.stride,
                 ).to(model.device)
+
+                print(tokenized_inputs)
+                input()
 
                 tokenized_inputs.pop("length")
                 tokenized_inputs.pop("overflow_to_sample_mapping")
@@ -809,120 +816,121 @@ if __name__ == "__main__":
                         all_fields_final.append(new_field)
 
         # COMBINE
-        docid_to_kile_predictions[doc_id] = []
-        threshold_combine = 250
+        if CFG_FILE.USE_POST_PROCESSING:
+            docid_to_kile_predictions[doc_id] = []
+            threshold_combine = 0.145
 
-        for page_idx in range(document.page_count):
-            ocr = document.ocr.get_all_words(page_idx)
-            img = document.page_image(page_idx)
-            W, H = img.size
+            for page_idx in range(document.page_count):
+                ocr = document.ocr.get_all_words(page_idx)
+                img = document.page_image(page_idx)
+                W, H = img.size
 
-            by_fieldtype = {}
-            final_by_fieldtype = {}
+                by_fieldtype = {}
+                final_by_fieldtype = {}
 
-            for x in all_fields_final:
-                if x.page == page_idx:
-                    if x.fieldtype in KILE_FIELDTYPES:
-                        t = dataclasses.replace(x, bbox=x.bbox.to_absolute_coords(W, H))
-                        by_fieldtype[x.fieldtype] = by_fieldtype.get(x.fieldtype, []) + [t]
-
-            for name_fieldtype, field in by_fieldtype.items():
-                used = [False for _ in range(len(field))]
-
-                for i in range(len(field)):
-                    if used[i]:
-                        continue
-
-                    Point_1 = Point(
-                        (field[i].bbox.left + field[i].bbox.right) / 2,
-                        (field[i].bbox.top + field[i].bbox.bottom) / 2,
-                    )
-
-                    for j in range(len(field)):
-                        if i == j:
-                            continue
-
-                        if used[j]:
-                            continue
-
-                        Point_2 = Point(
-                            (field[j].bbox.left + field[j].bbox.right) / 2,
-                            (field[j].bbox.top + field[j].bbox.bottom) / 2,
-                        )
-
-                        distance = Point_1.distance(Point_2)
-
-                        # if distance <= threshold_combine:
-                        if distance / W <= 0.145:
-                            new_bbox = BBox(
-                                min(field[i].bbox.left, field[j].bbox.left),
-                                min(field[i].bbox.top, field[j].bbox.top),
-                                max(field[i].bbox.right, field[j].bbox.right),
-                                max(field[i].bbox.bottom, field[j].bbox.bottom)
-                            )
-
-                            used[j] = True
-                            field[i] = dataclasses.replace(field[i], bbox=new_bbox)
-
-                final_by_fieldtype[name_fieldtype] = [x for i, x in enumerate(field) if not used[i]]
-
-            for field in final_by_fieldtype.values():
-                for x in field:
+                for x in all_fields_final:
                     if x.page == page_idx:
                         if x.fieldtype in KILE_FIELDTYPES:
-                            bbox = x.bbox
+                            t = dataclasses.replace(x, bbox=x.bbox.to_absolute_coords(W, H))
+                            by_fieldtype[x.fieldtype] = by_fieldtype.get(x.fieldtype, []) + [t]
 
-                            if bbox.left <= 1 and bbox.top <= 1 and bbox.right <= 1 and bbox.bottom <= 1:
-                                bbox = bbox.to_absolute_coords(W, H)
+                for name_fieldtype, field in by_fieldtype.items():
+                    used = [False for _ in range(len(field))]
 
-                            gt_bbox = Polygon([
-                                (bbox.left, bbox.bottom),
-                                (bbox.left, bbox.top),
-                                (bbox.right, bbox.top),
-                                (bbox.right, bbox.bottom)
-                            ])
+                    for i in range(len(field)):
+                        if used[i]:
+                            continue
 
-                            res = [*gt_bbox.bounds]
+                        Point_1 = Point(
+                            (field[i].bbox.left + field[i].bbox.right) / 2,
+                            (field[i].bbox.top + field[i].bbox.bottom) / 2,
+                        )
 
-                            for field in ocr:
-                                bbox = field.bbox
+                        for j in range(len(field)):
+                            if i == j:
+                                continue
+
+                            if used[j]:
+                                continue
+
+                            Point_2 = Point(
+                                (field[j].bbox.left + field[j].bbox.right) / 2,
+                                (field[j].bbox.top + field[j].bbox.bottom) / 2,
+                            )
+
+                            distance = Point_1.distance(Point_2)
+
+                            if distance / W <= threshold_combine:
+                                new_bbox = BBox(
+                                    min(field[i].bbox.left, field[j].bbox.left),
+                                    min(field[i].bbox.top, field[j].bbox.top),
+                                    max(field[i].bbox.right, field[j].bbox.right),
+                                    max(field[i].bbox.bottom, field[j].bbox.bottom)
+                                )
+
+                                used[j] = True
+                                field[i] = dataclasses.replace(field[i], bbox=new_bbox)
+
+                    final_by_fieldtype[name_fieldtype] = [x for i, x in enumerate(field) if not used[i]]
+
+                for field in final_by_fieldtype.values():
+                    for x in field:
+                        if x.page == page_idx:
+                            if x.fieldtype in KILE_FIELDTYPES:
+                                bbox = x.bbox
 
                                 if bbox.left <= 1 and bbox.top <= 1 and bbox.right <= 1 and bbox.bottom <= 1:
                                     bbox = bbox.to_absolute_coords(W, H)
 
-                                width = bbox.right - bbox.left
-                                height = bbox.bottom - bbox.top
-                                point_left = (bbox.left, bbox.top + height // 2)
-                                point_right = (bbox.right, bbox.top + height // 2)
+                                gt_bbox = Polygon([
+                                    (bbox.left, bbox.bottom),
+                                    (bbox.left, bbox.top),
+                                    (bbox.right, bbox.top),
+                                    (bbox.right, bbox.bottom)
+                                ])
 
-                                text = field.text
-                                len_text = len(text)
+                                res = [*gt_bbox.bounds]
 
-                                for i in range(1, len_text + 1):
-                                    point = Point(((2 * i - 1) / (2 * len_text) * point_left[0] + (1 - (2 * i - 1) / (2 * len_text)) * point_right[0]),
-                                            ((2 * i - 1) / (2 * len_text) * point_left[1] + (1 - (2 * i - 1) / (2 * len_text)) * point_right[1]))
+                                for field in ocr:
+                                    bbox = field.bbox
 
-                                    if gt_bbox.contains(point):
-                                        res[0] = min(res[0], bbox.left)
-                                        res[1] = min(res[1], bbox.top)
-                                        res[2] = max(res[2], bbox.right)
-                                        res[3] = max(res[3], bbox.bottom)
+                                    if bbox.left <= 1 and bbox.top <= 1 and bbox.right <= 1 and bbox.bottom <= 1:
+                                        bbox = bbox.to_absolute_coords(W, H)
 
-                            res = list(map(int, res))
-                            x = dataclasses.replace(x, bbox=BBox(*res).to_relative_coords(W, H))
-                            docid_to_kile_predictions[doc_id].append(x)
+                                    width = bbox.right - bbox.left
+                                    height = bbox.bottom - bbox.top
+                                    point_left = (bbox.left, bbox.top + height // 2)
+                                    point_right = (bbox.right, bbox.top + height // 2)
 
-        # docid_to_kile_predictions[doc_id] = [
-        #     x for x in all_fields_final if x.fieldtype in KILE_FIELDTYPES
-        # ]
+                                    text = field.text
+                                    len_text = len(text)
+
+                                    for i in range(1, len_text + 1):
+                                        point = Point(((2 * i - 1) / (2 * len_text) * point_left[0] + (1 - (2 * i - 1) / (2 * len_text)) * point_right[0]),
+                                                ((2 * i - 1) / (2 * len_text) * point_left[1] + (1 - (2 * i - 1) / (2 * len_text)) * point_right[1]))
+
+                                        if gt_bbox.contains(point):
+                                            res[0] = min(res[0], bbox.left)
+                                            res[1] = min(res[1], bbox.top)
+                                            res[2] = max(res[2], bbox.right)
+                                            res[3] = max(res[3], bbox.bottom)
+
+                                res = list(map(int, res))
+                                x = dataclasses.replace(x, bbox=BBox(*res).to_relative_coords(W, H))
+                                docid_to_kile_predictions[doc_id].append(x)
+
+        else:
+            docid_to_kile_predictions[doc_id] = [
+                x for x in all_fields_final if x.fieldtype in KILE_FIELDTYPES
+            ]
+            
         docid_to_lir_predictions[doc_id] = [
             x for x in all_fields_final if x.fieldtype in LIR_FIELDTYPES
         ]
+
         if args.store_intermediate_results:
             intermediate_results[doc_id] = intermediate_fields
 
-    # print(docid_to_kile_predictions)
-    # input()
 
     # Store intermediate results
     if args.store_intermediate_results:
@@ -998,17 +1006,19 @@ if __name__ == "__main__":
 
     print(f"Output stored to {out_path}")
 
-    # Call DocILE evaluation
-    print(f"RESULTS for {args.split}")
+    
+    if CFG_FILE.NEED_EVAULATE:
+        # Call DocILE evaluation
+        print(f"RESULTS for {args.split}")
 
-    # KILE
-    evaluation_result_KILE = evaluate_dataset(dataset, docid_to_kile_predictions, {})
-    print(evaluation_result_KILE.print_report())
-    evaluation_result_KILE.to_file(args.output_dir / f"{args.split}_results_KILE.json")
+        # KILE
+        evaluation_result_KILE = evaluate_dataset(dataset, docid_to_kile_predictions, {})
+        print(evaluation_result_KILE.print_report())
+        evaluation_result_KILE.to_file(args.output_dir / f"{args.split}_results_KILE.json")
 
-    # LIR
-    evaluation_result_LIR = evaluate_dataset(dataset, {}, docid_to_lir_predictions)
-    print(evaluation_result_LIR.print_report())
-    evaluation_result_LIR.to_file(args.output_dir / f"{args.split}_results_LIR.json")
+        # LIR
+        evaluation_result_LIR = evaluate_dataset(dataset, {}, docid_to_lir_predictions)
+        print(evaluation_result_LIR.print_report())
+        evaluation_result_LIR.to_file(args.output_dir / f"{args.split}_results_LIR.json")
 
     print(f"{datetime.now()} Finished.")

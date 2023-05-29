@@ -2,24 +2,19 @@
 
 # set -euo pipefail
 
+# Config here
+
 # Set GPU device number to use, enforced with CUDA_VISIBLE_DEVICES=${GPU}
 GPU="7"
+run="UIT@AICLUB_TAB"
+PREDICTIONS_DIR_PREFIX="predictions"
+DOCILE_PATH="/mlcv/WorkingSpace/Personals/thinhvq/DocILE/docile/data_train"
 
 # Call with `./run_inference test` or `./run_inference.sh val`
 split=$1
 
-run="UIT@AICLUB_TAB"
-
-
 # The '-user' suffix is here not to overwrite downloaded predictions by mistake
-PREDICTIONS_DIR_PREFIX="predictions"
 mkdir -p ${PREDICTIONS_DIR_PREFIX}
-
-DOCILE_PATH="/mlcv/WorkingSpace/Personals/thinhvq/DocILE/docile/data_train"
-
-# Detections of tables and Line Items. Only used if options --crop_bboxes_filename and/or
-# --line_item_bboxes_filename are used as well.
-TABLE_TRANSFORMER_PREDICTIONS_DIR="/app/data/baselines/predictions/detr"
 
 
 function run_inference() {
@@ -49,5 +44,7 @@ EOF
   eval ${run_cmd}
 }
 
+
+# To config checkpoint, you need to config it in config.py
 
 run_inference inference.py $split $run

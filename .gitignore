@@ -3,6 +3,7 @@
 **/experiments/*
 **/converted_images/*
 **/pseudo_data/*
+**/__pycache__/*
 
 !pseudo_data/README.md
 !predictions/README.md

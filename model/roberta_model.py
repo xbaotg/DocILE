@@ -9,8 +9,6 @@ from transformers.modeling_outputs import TokenClassifierOutput
 from transformers.models.bert.modeling_bert import _CONFIG_FOR_DOC
 from transformers.models.xlm_roberta import XLMRobertaModel
 from transformers.models.xlm_roberta.modeling_xlm_roberta import (
-    XLM_ROBERTA_INPUTS_DOCSTRING,
-    XLM_ROBERTA_START_DOCSTRING,
     XLMRobertaPreTrainedModel,
 )
 from transformers.utils import (
@@ -33,13 +31,6 @@ class MeanPooling(nn.Module):
         return mean_embeddings
 
 
-@add_start_docstrings(
-    """
-    XLM-RoBERTa Model with a token classification head on top (a linear layer on top of the hidden-states output) e.g.
-    for Named-Entity-Recognition (NER) tasks.
-    """,
-    XLM_ROBERTA_START_DOCSTRING,
-)
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForTokenClassification with Roberta->XLMRoberta, ROBERTA->XLM_ROBERTA
 class MyXLMRobertaMLForTokenClassification(XLMRobertaPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
@@ -97,9 +88,6 @@ class MyXLMRobertaMLForTokenClassification(XLMRobertaPreTrainedModel):
         # Initialize weights and apply final processing
         self.post_init()
 
-    @add_start_docstrings_to_model_forward(
-        XLM_ROBERTA_INPUTS_DOCSTRING.format("batch_size, sequence_length")
-    )
     @add_code_sample_docstrings(
         checkpoint="Jean-Baptiste/roberta-large-ner-english",
         output_type=TokenClassifierOutput,

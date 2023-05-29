@@ -23,7 +23,6 @@ import matplotlib.pyplot as plt
 from pdf2image import convert_from_path
 
 
-COLORS = plt.cm.tab10(np.arange(10))
 DATA_ROOT = pathlib.Path("/docile/unlabeled/chunk-01/original")
 OCR = DATA_ROOT / "ocr"
 PDF = DATA_ROOT / "pdfs"

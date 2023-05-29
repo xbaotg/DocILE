@@ -12,3 +12,4 @@ networkx
 lion_pytorch
 scipy
 torchmetrics
+tensorboardX

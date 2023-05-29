@@ -907,15 +907,6 @@ if __name__ == "__main__":
             args.model_name, config=config
         ).to(device)
 
-        # print(model)
-
-        # for name, param in model.named_parameters():
-        #     for i in range(6):
-        #         if name.startswith(f"roberta.encoder.layer.{i}."):
-        #             param.requires_grad = False
-
-        #     print(name, param.requires_grad)
-
     training_args = TrainingArguments(
         output_dir=os.path.join(args.output_dir),
         evaluation_strategy="epoch",
@@ -926,8 +917,8 @@ if __name__ == "__main__":
         num_train_epochs=args.num_epochs,
         weight_decay=args.weight_decay,
         load_best_model_at_end=True,
-        report_to="wandb",
-        # report_to="tensorboard",
+        # report_to="wandb",
+        report_to="tensorboard",
         save_total_limit=args.save_total_limit,
         seed=42,
         data_seed=42,

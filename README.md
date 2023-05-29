@@ -15,7 +15,7 @@ DocILE is a large-scale research benchmark for cross-evaluation of machine learn
 ├── run_training.sh
 ├── train.py
 ├── inference.py
-├── config.py               # make config here
+├── config.py               # make configuration here
 └── utils                   # source code to create pseudo data or visualize data
 ```
 
@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 ### Config
 
-You can view and edit the config [here](config.py). In this file, you can config whether the model will use Post-Processing, Fast Gradient Method, and how to Ensemble outputs, you can also customize any Optimizer and Scheduler you want to use to train the model.   
+You can view and edit the configuration [here](config.py). In this file, you can config whether the model will use Post-Processing, Fast Gradient Method, and how to Ensemble outputs, you can also customize any Optimizer and Scheduler you want to use to train the model.   
 
 ### Train
 

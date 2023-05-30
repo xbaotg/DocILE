@@ -467,10 +467,6 @@ if __name__ == "__main__":
             bboxes = np.array([x.bbox.to_tuple() for x in sorted_fields])
             groups = [x.line_item_id for x in sorted_fields]
 
-            print(text_tokens)
-            print(bboxes)
-            input()
-
             def get_output(text_tokens, config, model, tokenizer):
                 tokenized_inputs = tokenizer(
                     text_tokens,
@@ -485,9 +481,6 @@ if __name__ == "__main__":
                     return_tensors="pt",
                     stride=config.stride,
                 ).to(model.device)
-
-                print(tokenized_inputs)
-                input()
 
                 tokenized_inputs.pop("length")
                 tokenized_inputs.pop("overflow_to_sample_mapping")

@@ -305,7 +305,7 @@ class Trainer:
         callbacks: Optional[List[TrainerCallback]] = None,
         optimizers: Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler.LambdaLR] = (None, None),
         preprocess_logits_for_metrics: Optional[Callable[[torch.Tensor, torch.Tensor], torch.Tensor]] = None,
-        use_awp=False
+        use_fgm=False
     ):
         if args is None:
             output_dir = "tmp_trainer"
@@ -647,9 +647,9 @@ class Trainer:
         if args.torch_compile and not is_torch_compile_available():
             raise RuntimeError("Using torch.compile requires a nighly install of PyTorch.")
 
-        self.use_awp = use_awp
-        if use_awp:
-            from awp import FGM
+        self.use_fgm = use_fgm
+        if use_fgm:
+            from fgm import FGM
             self.fgm = FGM(model)
 
     def add_callback(self, callback):
@@ -1809,7 +1809,7 @@ class Trainer:
                 self.current_flos += float(self.floating_point_ops(inputs))
 
                 #Fast Gradient Method (FGM)
-                if self.use_awp:
+                if self.use_fgm:
                     self.fgm.attack()
 
                     model.train()

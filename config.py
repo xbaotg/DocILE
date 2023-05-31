@@ -20,7 +20,7 @@ NEED_EVAULATE = True
 MODEL_PATHS = [
     "/docile/baselines/NER/auto_find_best_model_res/model",
     "/docile/baselines/NER/auto_find_best_model_res/backup_ours/6_04_ours",
-    "/mlcv/WorkingSpace/Personals/baotg/DocILE/trained_model/roberta_base_fgm",
+    "/docile/baselines/roberta-base-with-synthetic/checkpoints/roberta_base_with_synthetic_pretraining_316500",
 ]
 
 ##################

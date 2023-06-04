@@ -68,6 +68,13 @@ def ensemble_output(outputs):
         scores: ensemble scores
     """
 
+    # default without ensemble
+    # output = outputs[0]
+    # output.logits = (outputs[0].logits + outputs[1].logits + outputs[2].logits) / 3  
+    # scores = torch.sigmoid(output.logits)
+    # predictions = torch.where(scores > 0.5, 1, 0)
+
+    # ensemble union
     predictions = [torch.where(torch.sigmoid(output.logits) > 0.5, 1, 0) for output in outputs]
     predictions = torch.stack(predictions, dim=-1)
     predictions = torch.where(torch.sum(predictions, -1) >= 1, 1, 0)

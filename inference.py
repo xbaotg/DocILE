@@ -811,7 +811,6 @@ if __name__ == "__main__":
         # COMBINE
         if CFG_FILE.USE_POST_PROCESSING:
             docid_to_kile_predictions[doc_id] = []
-            threshold_combine = 0.145
 
             for page_idx in range(document.page_count):
                 ocr = document.ocr.get_all_words(page_idx)
@@ -853,7 +852,7 @@ if __name__ == "__main__":
 
                             distance = Point_1.distance(Point_2)
 
-                            if distance / W <= threshold_combine:
+                            if distance / W <= CFG_FILE.THRESHOLD_POST_PROCESSING:
                                 new_bbox = BBox(
                                     min(field[i].bbox.left, field[j].bbox.left),
                                     min(field[i].bbox.top, field[j].bbox.top),

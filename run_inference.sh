@@ -5,7 +5,7 @@
 # Config here
 
 # Set GPU device number to use, enforced with CUDA_VISIBLE_DEVICES=${GPU}
-GPU="7"
+GPU="6"
 run="UIT@AICLUB_TAB"
 PREDICTIONS_DIR_PREFIX="predictions"
 DOCILE_PATH="/mlcv/WorkingSpace/Personals/thinhvq/DocILE/docile/data_train"

@@ -32,6 +32,10 @@ pip install -r requirements.txt
 
 You can view and edit the configuration [here](config.py). In this file, you can config whether the model will use Post-Processing, Fast Gradient Method, and how to Ensemble outputs, you can also customize any Optimizer and Scheduler you want to use to train the model.   
 
+### Trained Models
+
+You can download the weights of our three models [here](https://uithcm-my.sharepoint.com/:u:/g/personal/22520121_ms_uit_edu_vn/ES-cbanzr8BIj7PER8zhZnEBLKICnZQNVfDiubBWBQREQQ?e=sRxbfz). Don't forget to config the `MODEL_PATHS` in the `config.yml` and then inference with methods we used (Ensemble, Post-processing, ...).  
+
 ### Train
 
 Before training, you should config hyperparameters in file `run_training.sh`. Don't forget to change the output directory, data path, checkpoint path, and GPU devices, too. 

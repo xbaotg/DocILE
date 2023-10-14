@@ -1,7 +1,7 @@
 # DocILE - Document Information Localization and Extraction
 
 ---
-This is the implementation of our team (UIT@AICLUB_TAB) on the KILE subtask. In this competition, we got the 3rd Prize. The paper can found [here](DocILE2023_Paper.pdf)
+This is the implementation of our team (UIT@AICLUB_TAB) on the KILE subtask. In this competition, we got the 3rd Prize. The paper can found [here](https://ceur-ws.org/Vol-3497/paper-050.pdf)
 
 ### Introduction
 DocILE is a large-scale research benchmark for cross-evaluation of machine learning methods for Key Information Localization and Extraction (KILE) and Line Item Recognition (LIR) from semi-structured business documents such as invoices, orders, etc. Such large-scale benchmark was previously missing [(Skalický et al., 2022)](https://link.springer.com/chapter/10.1007/978-3-031-13643-6_8), hindering comparative evaluation.
